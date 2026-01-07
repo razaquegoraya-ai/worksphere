@@ -22,7 +22,7 @@ export default function PublicNotePage() {
   useEffect(() => {
     const fetchNote = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000"}/public/notes/${noteId}`)
+        const res = await fetch(`/api/notes/public/${noteId}`)
         const data = await res.json()
         
         if (!res.ok) {

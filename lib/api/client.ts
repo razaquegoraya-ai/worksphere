@@ -34,7 +34,8 @@ type Note = {
   user?: { id: string; email: string }
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+// Use relative URL for Next.js API routes (works in both dev and production)
+const API_URL = '/api'
 
 function getToken() {
   if (typeof window === 'undefined') return null
@@ -99,7 +100,8 @@ export const api = {
   createWorkspace: async (name: string) => request<{ workspace: Workspace }>('/workspaces', { method: 'POST', body: JSON.stringify({ name }) }),
   switchWorkspace: async (workspaceId: string) => {
     if (typeof window !== 'undefined') localStorage.setItem('ws_active_workspace_id', workspaceId)
-    return request<{ activeWorkspace: Workspace }>('/workspaces/switch', { method: 'POST', workspace: true })
+    // No server call needed - workspace ID is sent via header on each request
+    return { activeWorkspace: { id: workspaceId, name: '' } }
   },
 
   // Members
