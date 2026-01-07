@@ -1,0 +1,144 @@
+// Prisma schema for WorkSphere multi-tenant backend
+// PostgreSQL datasource
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Prisma Client generator
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Enums
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum MembershipStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum NoteVisibility {
+  PUBLIC
+  PRIVATE
+  MEMBERS
+}
+
+// Models
+
+model User {
+  id             String             @id @default(cuid())
+  email          String             @unique
+  passwordHash   String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  // Relations
+  memberships    WorkspaceMember[]
+  workspaces     Workspace[]        @relation("UserOwnedWorkspaces")
+  expenses       Expense[]
+  auditLogs      AuditLog[]
+  notes          Note[]
+}
+
+model Workspace {
+  id             String             @id @default(cuid())
+  name           String
+  ownerId        String
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  deletedAt      DateTime?
+
+  // Relations
+  owner          User               @relation("UserOwnedWorkspaces", fields: [ownerId], references: [id])
+  members        WorkspaceMember[]
+  expenses       Expense[]
+  auditLogs      AuditLog[]
+  notes          Note[]
+
+  @@index([ownerId])
+}
+
+model WorkspaceMember {
+  id             String             @id @default(cuid())
+  userId         String
+  workspaceId    String
+  role           Role               @default(VIEWER)
+  status         MembershipStatus   @default(PENDING)
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  removedAt      DateTime?
+
+  user           User               @relation(fields: [userId], references: [id])
+  workspace      Workspace          @relation(fields: [workspaceId], references: [id])
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@index([userId])
+}
+
+model Expense {
+  id             String    @id @default(cuid())
+  workspaceId    String
+  userId         String
+  title          String
+  amountCents    Int
+  currency       String     @default("USD")
+  occurredAt     DateTime
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  deletedAt      DateTime?
+
+  workspace      Workspace  @relation(fields: [workspaceId], references: [id])
+  user           User       @relation(fields: [userId], references: [id])
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([occurredAt])
+}
+
+model AuditLog {
+  id             String    @id @default(cuid())
+  workspaceId    String?
+  userId         String?
+  action         String
+  entity         String?
+  entityId       String?
+  meta           Json?
+  createdAt      DateTime  @default(now())
+
+  workspace      Workspace? @relation(fields: [workspaceId], references: [id])
+  user           User?      @relation(fields: [userId], references: [id])
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Note {
+  id             String         @id @default(cuid())
+  workspaceId    String
+  userId         String
+  title          String
+  content        String
+  visibility     NoteVisibility @default(PRIVATE)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  deletedAt      DateTime?
+
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id])
+  user           User           @relation(fields: [userId], references: [id])
+
+  @@index([workspaceId])
+  @@index([userId])
+  @@index([visibility])
+}
