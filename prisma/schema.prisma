@@ -48,6 +48,7 @@ model User {
   expenses       Expense[]
   auditLogs      AuditLog[]
   notes          Note[]
+  sharedNotes    NoteShare[]
 }
 
 model Workspace {
@@ -135,10 +136,24 @@ model Note {
   updatedAt      DateTime       @updatedAt
   deletedAt      DateTime?
 
+  //Relations
   workspace      Workspace      @relation(fields: [workspaceId], references: [id])
   user           User           @relation(fields: [userId], references: [id])
+  shares         NoteShare[]
 
   @@index([workspaceId])
   @@index([userId])
   @@index([visibility])
+}
+
+model NoteShare {
+  id        String   @id @default(cuid())
+  noteId    String
+  userId    String   // User the note is shared with
+  createdAt DateTime @default(now())
+
+  note      Note     @relation(fields: [noteId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([noteId, userId])  // Can't share same note twice with same user
 }
