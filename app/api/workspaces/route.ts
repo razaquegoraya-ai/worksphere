@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
         action: 'WORKSPACE_CREATE', 
         entity: 'Workspace', 
         entityId: ws.id 
-      })
+      }, tx)
       return ws
     })
 

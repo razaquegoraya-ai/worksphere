@@ -67,6 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+
   const logout = useCallback(() => {
     api.logout()
     localStorage.removeItem('ws_user')

@@ -1,6 +1,6 @@
 <!-- markdownlint-disable MD040 -->
 
-# WorkSphere - Full Application Flow
+# WorkSphere  (Full Application Flow)
 
 This document explains the complete flow of the Notes feature, database design decisions, and permission system.
 
@@ -13,6 +13,8 @@ User clicks "New Note" → Frontend Form → API Request → Database → Respon
 ### 1. Frontend (User Interface)
 
 **File:** `app/(protected)/notes/page.tsx`
+how protected works?
+
 
 ```tsx
 const handleCreate = async () => {

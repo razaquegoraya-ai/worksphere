@@ -56,7 +56,7 @@ export async function PUT(
         action: 'EXPENSE_UPDATE', 
         entity: 'Expense', 
         entityId: exp.id 
-      })
+      }, tx)
       return exp
     })
     
@@ -105,7 +105,7 @@ export async function DELETE(
       action: 'EXPENSE_SOFT_DELETE', 
       entity: 'Expense', 
       entityId: exp.id 
-    })
+    }, tx)
     return exp
   })
   

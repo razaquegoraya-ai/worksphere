@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
         action: 'EXPENSE_CREATE', 
         entity: 'Expense', 
         entityId: exp.id 
-      })
+      }, tx)
       return exp
     })
     
